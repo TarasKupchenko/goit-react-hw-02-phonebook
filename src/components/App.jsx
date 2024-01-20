@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './/Filter/Filter';
-import css from './App.module.css'
+import css from './App.module.css';
 
 export class App extends Component {
   state = {
@@ -15,23 +15,35 @@ export class App extends Component {
     filter: '',
   };
 
-  addContact = (contact) => {
-    this.setState((prevState) => ({ contacts: [...prevState.contacts, contact] }));
-  };
-
-  deleteContact = (contactId) => {
-    this.setState((prevState) => ({
-      contacts: prevState.contacts.filter((contact) => contact.id !== contactId),
+  addContact = contact => {
+    if (
+      this.state.contacts.some(
+        existingContact => existingContact.name === contact.name
+      )
+    ) {
+      alert(`Contact with name ${contact.name} already exists!`);
+      return;
+    }
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, contact],
     }));
   };
 
-  changeFilter = (e) => {
+  deleteContact = contactId => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
+    }));
+  };
+
+  changeFilter = e => {
     this.setState({ filter: e.target.value });
   };
 
   getFilteredContacts = () => {
     const { contacts, filter } = this.state;
-    return contacts.filter((contact) => contact.name.toLowerCase().includes(filter.toLowerCase()));
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
   };
 
   render() {
@@ -44,7 +56,10 @@ export class App extends Component {
         <ContactForm onSubmit={this.addContact} />
         <h2>Contacts</h2>
         <Filter value={filter} onChange={this.changeFilter} />
-        <ContactList contacts={visibleContacts} onDeleteContact={this.deleteContact} />
+        <ContactList
+          contacts={visibleContacts}
+          onDeleteContact={this.deleteContact}
+        />
       </div>
     );
   }
